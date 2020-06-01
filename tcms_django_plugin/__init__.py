@@ -1,13 +1,11 @@
-# Copyright (c) 2020 Alexander Todorov
+# Copyright (c) 2020 Bryan Mutai , <work@bryanmutai.co>
 
 # Licensed under the GPLv3: https://www.gnu.org/licenses/gpl.html
 
-# from tap.line import Result, Diagnostic
-# from tap.parser import Parser
 
 from tcms_api.plugin_helpers import Backend
 from django.test.runner import DiscoverRunner, DebugSQLTextTestResult
-import io
+from io import StringIO
 import logging
 from unittest import TextTestRunner, TextTestResult
 
@@ -25,7 +23,7 @@ class TestResult(TextTestResult):
         super().__init__(stream=stream, descriptions=descriptions, verbosity=verbosity, **kwargs)
         self.tcms_api_backend = Backend(prefix='[DJANGO ] ')
         self.test_case_id = 0
-        self.comment = "Result recorded via Kiwi TCMS Django plugin"
+        self.comment = 'Result recorded via Kiwi TCMS Django test runner reporting plugin'
         self.status_id = 0
         self.trace_back = ''
         self.skip_reason = ''
@@ -34,8 +32,9 @@ class TestResult(TextTestResult):
         self.test_execution_id = 0
 
     def startTestRun(self):
-        print("Test Run has started===============================\n\n\n")
         self.tcms_api_backend.configure()
+        self.stream.writeln(
+            'TCMS API configured. Starting Test run...')
 
     def startTest(self, test):
         super().startTest(test)
@@ -43,19 +42,16 @@ class TestResult(TextTestResult):
             self.getDescription(test))
         test_case_id = test_case['id']
         self.test_case_id = test_case_id
-        print("caseid:", self.test_case_id)
-        print("runid:", self.tcms_api_backend.run_id)
-
+        self.stream.writeln(
+            '\nTCMS Test case ID: {0!r}'.format(self.test_case_id))
+        self.stream.writeln('TCMS Test run ID: {0!r}'.format(
+            self.tcms_api_backend.run_id))
         self.tcms_api_backend.add_test_case_to_plan(test_case_id,
                                                     self.tcms_api_backend.plan_id)
-
         test_execution_id = self.tcms_api_backend.add_test_case_to_run(
             test_case_id,
             self.tcms_api_backend.run_id)
         self.test_execution_id = test_execution_id
-
-        print("test started:", test_case_id,
-              "description:", self.getDescription(test))
 
     def addSuccess(self, test):
         super().addSuccess(test)
@@ -64,33 +60,27 @@ class TestResult(TextTestResult):
     def addError(self, test, err):
         super().addError(test, err)
         self.status_id = self.tcms_api_backend.get_status_id('FAILED')
-        print("The traceback should be ======>",
-              self.errors[-1][1], "from:", self.errors[-1])
         self.trace_back = self.errors[-1][1]
 
     def addFailure(self, test, err):
         super().addFailure(test, err)
-        # try find better status id
         self.status_id = self.tcms_api_backend.get_status_id('FAILED')
         self.trace_back = self.failures[-1][1]
 
     def addSkip(self, test, reason):
         super().addSkip(test, reason)
         self.status_id = self.tcms_api_backend.get_status_id('WAIVED')
-        self.skip_reason = "Reason test was skipped: {0!r}".format(reason)
-        # report to API and use this for reason - "skipped {0!r}".format(reason)
+        self.skip_reason = 'Reason test was skipped: {0!r}'.format(reason)
 
     def addExpectedFailure(self, test, err):
         super().addExpectedFailure(test, err)
         self.status_id = self.tcms_api_backend.get_status_id('FAILED')
-        self.expected_failure_comment = "Test failed as expected."
+        self.expected_failure_comment = 'Test failed as expected'
         self.trace_back = self.expectedFailures[-1][1]
-        # The default implementation appends a tuple (test, formatted_err) to the instance’s expectedFailures attribute,
-        # where formatted_err is a formatted traceback derived from err.
 
     def addUnexpectedSuccess(self, test):
         super().addUnexpectedSuccess(test)
-        self.unexpected_success_comment = "Test unexpectedly passed."
+        self.unexpected_success_comment = 'Test unexpectedly passed.'
 
     def stopTest(self, test):
         self.tcms_api_backend.update_test_execution(self.test_execution_id,
@@ -115,54 +105,6 @@ class TestResult(TextTestResult):
 
     def stopTestRun(self):
         self.tcms_api_backend.finish_test_run()
-        print("\n\n\nTest run has ended========================")
-
-
-# class DebugSQLTextTestResult(unittest.TextTestResult):
-#     def __init__(self, stream, descriptions, verbosity):
-#         self.logger = logging.getLogger('django.db.backends')
-#         self.logger.setLevel(logging.DEBUG)
-#         super().__init__(stream, descriptions, verbosity)
-
-#     def startTest(self, test):
-#         self.debug_sql_stream = StringIO()
-#         self.handler = logging.StreamHandler(self.debug_sql_stream)
-#         self.logger.addHandler(self.handler)
-#         super().startTest(test)
-
-#     def stopTest(self, test):
-#         super().stopTest(test)
-#         self.logger.removeHandler(self.handler)
-#         if self.showAll:
-#             self.debug_sql_stream.seek(0)
-#             self.stream.write(self.debug_sql_stream.read())
-#             self.stream.writeln(self.separator2)
-
-#     def addError(self, test, err):
-#         super().addError(test, err)
-#         self.debug_sql_stream.seek(0)
-#         self.errors[-1] = self.errors[-1] + (self.debug_sql_stream.read(),)
-
-#     def addFailure(self, test, err):
-#         super().addFailure(test, err)
-#         self.debug_sql_stream.seek(0)
-#         self.failures[-1] = self.failures[-1] + (self.debug_sql_stream.read(),)
-
-#     def addSubTest(self, test, subtest, err):
-#         super().addSubTest(test, subtest, err)
-#         if err is not None:
-#             self.debug_sql_stream.seek(0)
-#             errors = self.failures if issubclass(err[0], test.failureException) else self.errors
-#             errors[-1] = errors[-1] + (self.debug_sql_stream.read(),)
-
-#     def printErrorList(self, flavour, errors):
-#         for test, err, sql_debug in errors:
-#             self.stream.writeln(self.separator1)
-#             self.stream.writeln("%s: %s" % (flavour, self.getDescription(test)))
-#             self.stream.writeln(self.separator2)
-#             self.stream.writeln(err)
-#             self.stream.writeln(self.separator2)
-#             self.stream.writeln(sql_debug)
 
 
 class DebugSQLTestResult(TestResult):
@@ -172,7 +114,7 @@ class DebugSQLTestResult(TestResult):
         super().__init__(stream=stream, descriptions=descriptions, verbosity=2, **kwargs)
 
     def startTest(self, test):
-        self.debug_sql_stream = io.StringIO()
+        self.debug_sql_stream = StringIO()
         self.handler = logging.StreamHandler(self.debug_sql_stream)
         self.logger.addHandler(self.handler)
         super().startTest(test)
@@ -184,13 +126,11 @@ class DebugSQLTestResult(TestResult):
             self.debug_sql_stream.seek(0)
             self.stream.write(self.debug_sql_stream.read())
             self.stream.writeln(self.separator2)
-        # use plugin to stop test if neccessary
 
     def addError(self, test, err):
         super().addError(test, err)
         self.debug_sql_stream.seek(0)
         self.errors[-1] = self.errors[-1] + (self.debug_sql_stream.read(),)
-        # use plugin to add err to the test run/exec
 
     def addFailure(self, test, err):
         super().addFailure(test, err)
@@ -223,7 +163,7 @@ class PDBDebugResult(TestResult):
         pdb.post_mortem(traceback)
 
 
-class TestRunner(DiscoverRunner):  # pylint: disable=too-few-public-methods
+class TestRunner(DiscoverRunner):
 
     def __init__(self, pattern=None, top_level=None, verbosity=1,
                  interactive=True, failfast=False, keepdb=False,
