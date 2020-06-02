@@ -12,5 +12,5 @@ INSTALLATION
     pip install 
 
 
-CONFIGURATION
-------------
+Configuration and Environment
+-----------------------------
