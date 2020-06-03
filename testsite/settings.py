@@ -119,13 +119,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-print(os.path.join(os.path.dirname(os.path.dirname(
-    BASE_DIR)), 'tcms_django_plugin.TestRunner'))
-# TEST_RUNNER = os.path.join(os.path.dirname(
-#     os.path.dirname(BASE_DIR)), 'tcms_django_plugin.TestRunner')
-
 TEST_RUNNER = 'tcms_django_plugin.TestRunner'
-
-# os.path.dirname(BASE_DIR)
-
-# print os.path.abspath(os.path.join(yourpath, os.pardir))
