@@ -16,7 +16,7 @@ with open("README.rst") as readme:
 
 REQUIREMENTS = open('requirements.txt').readlines()
 
-setup(name='kiwitcms-django-plugin',
+setup(name='tcms-django-plugin',
       version=get_version(),
       packages=['tcms_django_plugin'],
       description='Django test runner plugin for Kiwi TCMS',
@@ -24,7 +24,7 @@ setup(name='kiwitcms-django-plugin',
       long_description_content_type="text/x-rst",
       maintainer='Kiwi TCMS',
       maintainer_email='info@kiwitcms.org',
-      license='GPLv3+',
+      license='GPLv3',
       url='https://github.com/brymut/tcms-django-plugin',
       python_requires='>=3.6',
       install_requires=REQUIREMENTS,
