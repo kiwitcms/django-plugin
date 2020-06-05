@@ -1,0 +1,37 @@
+name: testing
+
+on:
+  pull_request:
+    branches:
+      - "*"
+  push:
+    branches:
+      - "*"
+
+jobs:
+  static_analysis:
+    name: ${{ matrix.make-command }} / Py${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.7]
+        make-command: [ flake8, pylint]
+
+    steps:
+
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Python dependencies
+      run: |
+        sudo apt-get install virtualenv libkrb5-dev
+        pip install -r devel.txt
+    - name: Verify ${{ matrix.make-command }}
+      run: |
+        make ${{ matrix.make-command }}
