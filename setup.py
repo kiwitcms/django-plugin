@@ -1,31 +1,23 @@
 #!/usr/bin/env python
-import os
-import sys
 from setuptools import setup
-
-
-def get_version():
-    version = open(os.path.join('tcms_django_plugin', 'version.py')).read()
-    return version.replace(
-        ' ', ''
-    ).replace('__version__=', '').strip().strip("'").strip('"')
-
 
 with open("README.rst") as readme:
     LONG_DESCRIPTION = readme.read()
 
 REQUIREMENTS = open('requirements.txt').readlines()
 
-setup(name='tcms-django-plugin',
-      version=get_version(),
+setup(name='kiwitcms-django-plugin',
+      version='0.0.1',
       packages=['tcms_django_plugin'],
       description='Django test runner plugin for Kiwi TCMS',
       long_description=LONG_DESCRIPTION,
-      long_description_content_type="text/x-rst",
+      long_description_content_type='text/x-rst',
+      author='Bryan Mutai',
+      author_email='work@bryanmutai.co',
       maintainer='Kiwi TCMS',
       maintainer_email='info@kiwitcms.org',
       license='GPLv3',
-      url='https://github.com/brymut/tcms-django-plugin',
+      url='https://github.com/kiwitcms/django-plugin',
       python_requires='>=3.6',
       install_requires=REQUIREMENTS,
       classifiers=[

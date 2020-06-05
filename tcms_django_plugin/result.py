@@ -1,7 +1,9 @@
-from unittest import TextTestResult
-from tcms_api.plugin_helpers import Backend
 from io import StringIO
 import logging
+
+from unittest import TextTestResult
+from tcms_api.plugin_helpers import Backend
+
 try:
     import ipdb as pdb
 except ImportError:
@@ -11,12 +13,15 @@ except ImportError:
 
 
 class TestResult(TextTestResult):
-
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, stream=None, descriptions=None, verbosity=2, **kwargs):
-        super().__init__(stream=stream, descriptions=descriptions, verbosity=verbosity, **kwargs)
+        super().__init__(stream=stream, descriptions=descriptions,
+                         verbosity=verbosity, **kwargs)
         self.tcms_api_backend = Backend(prefix='[DJANGO ] ')
         self.test_case_id = 0
-        self.comment = 'Result recorded via Kiwi TCMS Django test runner reporting plugin'
+        self.comment = '''
+        Result recorded via Kiwi TCMS Django test runner reporting plugin
+        '''
         self.status_id = 0
         self.trace_back = ''
         self.skip_reason = ''
@@ -28,6 +33,8 @@ class TestResult(TextTestResult):
         self.tcms_api_backend.configure()
         self.stream.writeln(
             'TCMS API configured. Starting Test run...')
+        self.stream.writeln('TCMS Test run ID: {0!r}'.format(
+            self.tcms_api_backend.run_id))
 
     def startTest(self, test):
         super().startTest(test)
@@ -37,10 +44,9 @@ class TestResult(TextTestResult):
         self.test_case_id = test_case_id
         self.stream.writeln(
             '\nTCMS Test case ID: {0!r}'.format(self.test_case_id))
-        self.stream.writeln('TCMS Test run ID: {0!r}'.format(
-            self.tcms_api_backend.run_id))
-        self.tcms_api_backend.add_test_case_to_plan(test_case_id,
-                                                    self.tcms_api_backend.plan_id)
+        self.tcms_api_backend.add_test_case_to_plan(
+            test_case_id,
+            self.tcms_api_backend.plan_id)
         test_execution_id = self.tcms_api_backend.add_test_case_to_run(
             test_case_id,
             self.tcms_api_backend.run_id)
@@ -79,19 +85,19 @@ class TestResult(TextTestResult):
         self.tcms_api_backend.update_test_execution(self.test_execution_id,
                                                     self.status_id,
                                                     self.comment)
-        if (self.trace_back != ''):
+        if self.trace_back != '':
             self.tcms_api_backend.add_comment(
                 self.test_execution_id, self.trace_back)
             self.trace_back = ''
-            if(self.expected_failure_comment != ''):
+            if self.expected_failure_comment != '':
                 self.tcms_api_backend.add_comment(
                     self.test_execution_id, self.expected_failure_comment)
                 self.expected_failure_comment = ''
-        elif(self.skip_reason != ''):
+        elif self.skip_reason != '':
             self.tcms_api_backend.add_comment(
                 self.test_execution_id, self.skip_reason)
             self.skip_reason = ''
-        elif(self.unexpected_success_comment != ''):
+        elif self.unexpected_success_comment != '':
             self.tcms_api_backend.add_comment(
                 self.test_execution_id, self.unexpected_success_comment)
             self.unexpected_success_comment = ''
@@ -104,11 +110,12 @@ class DebugSQLTestResult(TestResult):
     def __init__(self, stream, descriptions, verbosity, **kwargs):
         self.logger = logging.getLogger('django.db.backends')
         self.logger.setLevel(logging.DEBUG)
-        super().__init__(stream=stream, descriptions=descriptions, verbosity=2, **kwargs)
-
-    def startTest(self, test):
         self.debug_sql_stream = StringIO()
         self.handler = logging.StreamHandler(self.debug_sql_stream)
+        super().__init__(stream=stream, descriptions=descriptions,
+                         verbosity=2, **kwargs)
+
+    def startTest(self, test):
         self.logger.addHandler(self.handler)
         super().startTest(test)
 
@@ -142,6 +149,12 @@ class DebugSQLTestResult(TestResult):
 
 
 class PDBDebugResult(TestResult):
+    @staticmethod
+    def debug(error):
+        _, exc_value, traceback = error
+        print("\nOpening PDB: %r" % exc_value)
+        pdb.post_mortem(traceback)
+
     def addError(self, test, err):
         super().addError(test, err)
         self.debug(err)
@@ -149,8 +162,3 @@ class PDBDebugResult(TestResult):
     def addFailure(self, test, err):
         super().addFailure(test, err)
         self.debug(err)
-
-    def debug(self, error):
-        _, exc_value, traceback = error
-        print("\nOpening PDB: %r" % exc_value)
-        pdb.post_mortem(traceback)

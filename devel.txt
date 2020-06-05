@@ -1,0 +1,8 @@
+-r requirements.txt
+
+doc8
+flake8
+pylint
+twine
+wheel
+pylint_django

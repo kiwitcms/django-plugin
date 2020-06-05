@@ -35,29 +35,10 @@ A minimal config file ~/.tcms.conf is required to set up communication with the 
     username = your-username
     password = your-password
 
-
 The tcms-api depends on various environment variables to configure and report
 information about the test plans/cases/runs and executions back to Kiwi TCMS server.
 
-For product information use one of the following environment variables:
-
-- TCMS_PRODUCT
-- TRAVIS_REPO_SLUG
-- JOB_NAME
-
-For version information use one of the following environment variables:
-
-- TCMS_PRODUCT_VERSION
-- TRAVIS_COMMIT
-- TRAVIS_PULL_REQUEST_SHA
-- GIT_COMMIT
-
-For build information use one of the following environment variables:
-
-- TCMS_BUILD
-- TRAVIS_BUILD_NUMBER
-- BUILD_NUMBER
-
-
 For more information about the tcms-api visit https://github.com/kiwitcms/tcms-api
+
+
  
