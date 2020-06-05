@@ -6,8 +6,6 @@
 from django.test.runner import DiscoverRunner
 from .result import TestResult, DebugSQLTestResult, PDBDebugResult
 
-# TODO RPC METHOD: <Fault -32601: 'Method not found: "PlanType.create"'>
-
 
 class TestRunner(DiscoverRunner):
 

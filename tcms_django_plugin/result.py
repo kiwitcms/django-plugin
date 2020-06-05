@@ -9,8 +9,6 @@ try:
 except ImportError:
     import pdb
 
-# TODO:Figure out subtests
-
 
 class TestResult(TextTestResult):
     # pylint: disable=too-many-instance-attributes
@@ -28,6 +26,7 @@ class TestResult(TextTestResult):
         self.expected_failure_comment = ''
         self.unexpected_success_comment = ''
         self.test_execution_id = 0
+        self.failed_subtest = False
 
     def startTestRun(self):
         self.tcms_api_backend.configure()
@@ -81,7 +80,29 @@ class TestResult(TextTestResult):
         super().addUnexpectedSuccess(test)
         self.unexpected_success_comment = 'Test unexpectedly passed.'
 
+    def addSubTest(self, test, subtest, err):
+        if err is not None:
+            self.failed_subtest = True
+            if issubclass(err[0], test.failureException):
+                self.tcms_api_backend.update_test_execution(
+                    self.test_execution_id,
+                    self.tcms_api_backend.get_status_id('FAILED'),
+                    "Subtest failure:{0}".format(
+                        self._exc_info_to_string(err, test)))
+            else:
+                self.tcms_api_backend.update_test_execution(
+                    self.test_execution_id,
+                    self.tcms_api_backend.get_status_id('FAILED'),
+                    "Subtest error:{0}".format(
+                        self._exc_info_to_string(err, test)))
+
+        super().addSubTest(test, subtest, err)
+
     def stopTest(self, test):
+        if self.failed_subtest:
+            self.failed_subtest = False
+            return
+
         self.tcms_api_backend.update_test_execution(self.test_execution_id,
                                                     self.status_id,
                                                     self.comment)
