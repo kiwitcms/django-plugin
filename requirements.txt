@@ -1,2 +1,2 @@
-Django
+Django==3.0.7
 tcms-api==8.3.0
