@@ -1,6 +1,6 @@
+from unittest import skip, expectedFailure
 from django.test import SimpleTestCase
 from django.urls import reverse
-from unittest import skip, expectedFailure
 
 
 class TestAppContactPageTest(SimpleTestCase):
@@ -40,3 +40,16 @@ class TestAppMissingPageTest(SimpleTestCase):
     @expectedFailure
     def test_unexpected_success(self):
         self.assertEqual(1, 1, "broken (not actually)")
+
+
+class TestAppBooleanPageTest(SimpleTestCase):
+    def test_get_correct_boolean(self):
+        with self.subTest("Should return False"):
+            false_response = self.client.get('/testapp/boolean/0/')
+            self.assertEqual(false_response.content, b'False')
+        with self.subTest("Should return True"):
+            true_response = self.client.get('/testapp/boolean/1/')
+            self.assertEqual(true_response.content, b'True')
+        with self.subTest("Should return invalid"):
+            invalid_response = self.client.get('/testapp/boolean/99/')
+            self.assertEqual(invalid_response.content, b'invalid')
