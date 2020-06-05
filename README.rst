@@ -1,44 +1,37 @@
 Django Test Runner plugin for Kiwi TCMS
 =======================================
 
-When you run ./manage.py test, Django looks at the TEST_RUNNER setting to determine what to do.
-By default, TEST_RUNNER points to 'django.test.runner.DiscoverRunner'.
+This package provides a Django test runner that reports the test results to
+`Kiwi TCMS <https://kiwitcms.org>`_.
 
-This package provides an overriden version of the default django test runner (DiscoverRunner)
-that on top of its expected functionality reports the test results to Kiwi TCMS via the Kiwi TCMS API.
 
-INSTALLATION
+Installation
 ------------
-First, install the following package using the command:
 
 ::
 
-    pip install tcms-django-plugin
+    pip install kiwitcms-django-plugin
 
 
-Configuration and Environment
+Configuration and environment
 -----------------------------
-To add reporting from tests to Kiwi TCMS via this plugin's test runner, in your django settings.py,
-add the following setting to change from the default test runner.
-
-::
-
-    TEST_RUNNER = 'tcms_django_plugin.TestRunner'
 
 
-A minimal config file ~/.tcms.conf is required to set up communication with the TCMS API:
-
-::
+Minimal config file ``~/.tcms.conf``::
 
     [tcms]
     url = https://tcms.server/xml-rpc/
     username = your-username
     password = your-password
 
-The tcms-api depends on various environment variables to configure and report
-information about the test plans/cases/runs and executions back to Kiwi TCMS server.
+For more info see `tcms-api docs <https://tcms-api.readthedocs.io>`_.
 
-For more information about the tcms-api visit https://github.com/kiwitcms/tcms-api
+Usage
+-----
 
+In ``settings.py`` add the following::
 
- 
+    TEST_RUNNER = 'tcms_django_plugin.TestRunner'
+
+When you run ``./manage.py test`` Django looks at the ``TEST_RUNNER`` setting
+to determine what to do.
