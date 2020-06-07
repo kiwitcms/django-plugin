@@ -2,10 +2,13 @@
 flake8:
 	@flake8 --exclude=.git *.py tcms_django_plugin testapp tests testsite
 
+.PHONY: doc8
+doc8:
+	doc8 README.rst
+
 .PHONY: pylint
 pylint:
-	pylint -d missing-docstring -d duplicate-code tcms_django_plugin/ tests/
-	PYTHONPATH=.:./tcms/ DJANGO_SETTINGS_MODULE=$(DJANGO_SETTINGS_MODULE) pylint --load-plugins=pylint_django -d missing-docstring -d duplicate-code testapp/ testsite/ manage.py
+	DJANGO_SETTINGS_MODULE=$(DJANGO_SETTINGS_MODULE) pylint --load-plugins=pylint_django -d missing-docstring tcms_django_plugin/ tests/ testapp/ testsite/ manage.py
 
 .PHONY: build
 build:

@@ -4,127 +4,92 @@ import logging
 from unittest import TextTestResult
 from tcms_api.plugin_helpers import Backend
 
-try:
-    import ipdb as pdb
-except ImportError:
-    import pdb
-
 
 class TestResult(TextTestResult):
-    # pylint: disable=too-many-instance-attributes
     def __init__(self, stream=None, descriptions=None, verbosity=2, **kwargs):
         super().__init__(stream=stream, descriptions=descriptions,
                          verbosity=verbosity, **kwargs)
-        self.tcms_api_backend = Backend(prefix='[DJANGO ] ')
-        self.test_case_id = 0
-        self.comment = '''
-        Result recorded via Kiwi TCMS Django test runner reporting plugin
-        '''
+        self.backend = Backend(prefix='[DJANGO ] ')
+        self.comment = ''
         self.status_id = 0
-        self.trace_back = ''
-        self.skip_reason = ''
-        self.expected_failure_comment = ''
-        self.unexpected_success_comment = ''
         self.test_execution_id = 0
         self.failed_subtest = False
 
     def startTestRun(self):
-        self.tcms_api_backend.configure()
-        self.stream.writeln(
-            'TCMS API configured. Starting Test run...')
-        self.stream.writeln('TCMS Test run ID: {0!r}'.format(
-            self.tcms_api_backend.run_id))
+        super().startTestRun()
+        self.backend.configure()
 
     def startTest(self, test):
         super().startTest(test)
-        test_case, _ = self.tcms_api_backend.test_case_get_or_create(
+        test_case, _ = self.backend.test_case_get_or_create(
             self.getDescription(test))
-        test_case_id = test_case['id']
-        self.test_case_id = test_case_id
-        self.stream.writeln(
-            '\nTCMS Test case ID: {0!r}'.format(self.test_case_id))
-        self.tcms_api_backend.add_test_case_to_plan(
-            test_case_id,
-            self.tcms_api_backend.plan_id)
-        test_execution_id = self.tcms_api_backend.add_test_case_to_run(
-            test_case_id,
-            self.tcms_api_backend.run_id)
-        self.test_execution_id = test_execution_id
+        self.backend.add_test_case_to_plan(
+            test_case['id'],
+            self.backend.plan_id)
+        self.test_execution_id = self.backend.add_test_case_to_run(
+            test_case['id'],
+            self.backend.run_id)
 
     def addSuccess(self, test):
         super().addSuccess(test)
-        self.status_id = self.tcms_api_backend.get_status_id('PASSED')
+        self.status_id = self.backend.get_status_id('PASSED')
 
     def addError(self, test, err):
         super().addError(test, err)
-        self.status_id = self.tcms_api_backend.get_status_id('FAILED')
-        self.trace_back = self.errors[-1][1]
+        self.status_id = self.backend.get_status_id('FAILED')
+        self.comment = self.errors[-1][1]
 
     def addFailure(self, test, err):
         super().addFailure(test, err)
-        self.status_id = self.tcms_api_backend.get_status_id('FAILED')
-        self.trace_back = self.failures[-1][1]
+        self.status_id = self.backend.get_status_id('FAILED')
+        self.comment = self.failures[-1][1]
 
     def addSkip(self, test, reason):
         super().addSkip(test, reason)
-        self.status_id = self.tcms_api_backend.get_status_id('WAIVED')
-        self.skip_reason = 'Reason test was skipped: {0!r}'.format(reason)
+        self.status_id = self.backend.get_status_id('WAIVED')
+        self.comment = reason
 
     def addExpectedFailure(self, test, err):
         super().addExpectedFailure(test, err)
-        self.status_id = self.tcms_api_backend.get_status_id('FAILED')
-        self.expected_failure_comment = 'Test failed as expected'
-        self.trace_back = self.expectedFailures[-1][1]
+        self.status_id = self.backend.get_status_id('FAILED')
+        self.comment = "Test failed as expected.\n\n{0}".format(
+            self.expectedFailures[-1][1])
 
     def addUnexpectedSuccess(self, test):
         super().addUnexpectedSuccess(test)
-        self.unexpected_success_comment = 'Test unexpectedly passed.'
+        self.comment = 'Test unexpectedly passed.'
 
     def addSubTest(self, test, subtest, err):
+        super().addSubTest(test, subtest, err)
         if err is not None:
             self.failed_subtest = True
             if issubclass(err[0], test.failureException):
-                self.tcms_api_backend.update_test_execution(
+                self.backend.update_test_execution(
                     self.test_execution_id,
-                    self.tcms_api_backend.get_status_id('FAILED'),
+                    self.backend.get_status_id('FAILED'),
                     "Subtest failure:{0}".format(
                         self._exc_info_to_string(err, test)))
             else:
-                self.tcms_api_backend.update_test_execution(
+                self.backend.update_test_execution(
                     self.test_execution_id,
-                    self.tcms_api_backend.get_status_id('FAILED'),
+                    self.backend.get_status_id('FAILED'),
                     "Subtest error:{0}".format(
                         self._exc_info_to_string(err, test)))
 
-        super().addSubTest(test, subtest, err)
-
     def stopTest(self, test):
+        super().stopTest(test)
         if self.failed_subtest:
             self.failed_subtest = False
             return
 
-        self.tcms_api_backend.update_test_execution(self.test_execution_id,
-                                                    self.status_id,
-                                                    self.comment)
-        if self.trace_back != '':
-            self.tcms_api_backend.add_comment(
-                self.test_execution_id, self.trace_back)
-            self.trace_back = ''
-            if self.expected_failure_comment != '':
-                self.tcms_api_backend.add_comment(
-                    self.test_execution_id, self.expected_failure_comment)
-                self.expected_failure_comment = ''
-        elif self.skip_reason != '':
-            self.tcms_api_backend.add_comment(
-                self.test_execution_id, self.skip_reason)
-            self.skip_reason = ''
-        elif self.unexpected_success_comment != '':
-            self.tcms_api_backend.add_comment(
-                self.test_execution_id, self.unexpected_success_comment)
-            self.unexpected_success_comment = ''
+        self.backend.update_test_execution(self.test_execution_id,
+                                           self.status_id,
+                                           self.comment)
+        self.comment = ''
 
     def stopTestRun(self):
-        self.tcms_api_backend.finish_test_run()
+        super().stopTestRun()
+        self.backend.finish_test_run()
 
 
 class DebugSQLTestResult(TestResult):
@@ -167,19 +132,3 @@ class DebugSQLTestResult(TestResult):
             self.stream.writeln(err)
             self.stream.writeln(self.separator2)
             self.stream.writeln(sql_debug)
-
-
-class PDBDebugResult(TestResult):
-    @staticmethod
-    def debug(error):
-        _, exc_value, traceback = error
-        print("\nOpening PDB: %r" % exc_value)
-        pdb.post_mortem(traceback)
-
-    def addError(self, test, err):
-        super().addError(test, err)
-        self.debug(err)
-
-    def addFailure(self, test, err):
-        super().addFailure(test, err)
-        self.debug(err)
