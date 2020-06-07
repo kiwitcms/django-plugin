@@ -25,10 +25,6 @@ class TestResult(TextTestResult):
 
     def startTestRun(self):
         self.backend.configure()
-        self.stream.writeln(
-            'TCMS API configured. Starting Test run...')
-        self.stream.writeln('TCMS Test run ID: {0!r}'.format(
-            self.backend.run_id))
 
     def startTest(self, test):
         super().startTest(test)
@@ -36,8 +32,6 @@ class TestResult(TextTestResult):
             self.getDescription(test))
         test_case_id = test_case['id']
         self.test_case_id = test_case_id
-        self.stream.writeln(
-            '\nTCMS Test case ID: {0!r}'.format(self.test_case_id))
         self.backend.add_test_case_to_plan(
             test_case_id,
             self.backend.plan_id)
