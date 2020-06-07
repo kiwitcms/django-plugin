@@ -4,8 +4,7 @@ flake8:
 
 .PHONY: pylint
 pylint:
-	pylint -d missing-docstring -d duplicate-code tcms_django_plugin/ tests/
-	PYTHONPATH=.:./tcms/ DJANGO_SETTINGS_MODULE=$(DJANGO_SETTINGS_MODULE) pylint --load-plugins=pylint_django -d missing-docstring -d duplicate-code testapp/ testsite/ manage.py
+	DJANGO_SETTINGS_MODULE=$(DJANGO_SETTINGS_MODULE) pylint --load-plugins=pylint_django -d missing-docstring tcms_django_plugin/ tests/ testapp/ testsite/ manage.py
 
 .PHONY: build
 build:
