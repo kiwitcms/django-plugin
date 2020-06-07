@@ -24,6 +24,7 @@ class TestResult(TextTestResult):
         self.failed_subtest = False
 
     def startTestRun(self):
+        super().startTestRun()
         self.backend.configure()
 
     def startTest(self, test):
@@ -70,6 +71,7 @@ class TestResult(TextTestResult):
         self.unexpected_success_comment = 'Test unexpectedly passed.'
 
     def addSubTest(self, test, subtest, err):
+        super().addSubTest(test, subtest, err)
         if err is not None:
             self.failed_subtest = True
             if issubclass(err[0], test.failureException):
@@ -85,9 +87,8 @@ class TestResult(TextTestResult):
                     "Subtest error:{0}".format(
                         self._exc_info_to_string(err, test)))
 
-        super().addSubTest(test, subtest, err)
-
     def stopTest(self, test):
+        super().stopTest(test)
         if self.failed_subtest:
             self.failed_subtest = False
             return
@@ -113,6 +114,7 @@ class TestResult(TextTestResult):
             self.unexpected_success_comment = ''
 
     def stopTestRun(self):
+        super().stopTestRun()
         self.backend.finish_test_run()
 
 
