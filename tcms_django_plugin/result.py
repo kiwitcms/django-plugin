@@ -6,20 +6,12 @@ from tcms_api.plugin_helpers import Backend
 
 
 class TestResult(TextTestResult):
-    # pylint: disable=too-many-instance-attributes
     def __init__(self, stream=None, descriptions=None, verbosity=2, **kwargs):
         super().__init__(stream=stream, descriptions=descriptions,
                          verbosity=verbosity, **kwargs)
         self.backend = Backend(prefix='[DJANGO ] ')
-        self.test_case_id = 0
-        self.comment = '''
-        Result recorded via Kiwi TCMS Django test runner reporting plugin
-        '''
+        self.comment = ''
         self.status_id = 0
-        self.trace_back = ''
-        self.skip_reason = ''
-        self.expected_failure_comment = ''
-        self.unexpected_success_comment = ''
         self.test_execution_id = 0
         self.failed_subtest = False
 
@@ -30,15 +22,12 @@ class TestResult(TextTestResult):
         super().startTest(test)
         test_case, _ = self.backend.test_case_get_or_create(
             self.getDescription(test))
-        test_case_id = test_case['id']
-        self.test_case_id = test_case_id
         self.backend.add_test_case_to_plan(
-            test_case_id,
+            test_case['id'],
             self.backend.plan_id)
-        test_execution_id = self.backend.add_test_case_to_run(
-            test_case_id,
+        self.test_execution_id = self.backend.add_test_case_to_run(
+            test_case['id'],
             self.backend.run_id)
-        self.test_execution_id = test_execution_id
 
     def addSuccess(self, test):
         super().addSuccess(test)
@@ -47,27 +36,26 @@ class TestResult(TextTestResult):
     def addError(self, test, err):
         super().addError(test, err)
         self.status_id = self.backend.get_status_id('FAILED')
-        self.trace_back = self.errors[-1][1]
+        self.comment = self.errors[-1][1]
 
     def addFailure(self, test, err):
         super().addFailure(test, err)
         self.status_id = self.backend.get_status_id('FAILED')
-        self.trace_back = self.failures[-1][1]
+        self.comment = self.failures[-1][1]
 
     def addSkip(self, test, reason):
         super().addSkip(test, reason)
         self.status_id = self.backend.get_status_id('WAIVED')
-        self.skip_reason = 'Reason test was skipped: {0!r}'.format(reason)
+        self.comment = reason
 
     def addExpectedFailure(self, test, err):
         super().addExpectedFailure(test, err)
         self.status_id = self.backend.get_status_id('FAILED')
-        self.expected_failure_comment = 'Test failed as expected'
-        self.trace_back = self.expectedFailures[-1][1]
+        self.comment = self.expectedFailures[-1][1]
 
     def addUnexpectedSuccess(self, test):
         super().addUnexpectedSuccess(test)
-        self.unexpected_success_comment = 'Test unexpectedly passed.'
+        self.comment = 'Test unexpectedly passed.'
 
     def addSubTest(self, test, subtest, err):
         if err is not None:
@@ -95,22 +83,7 @@ class TestResult(TextTestResult):
         self.backend.update_test_execution(self.test_execution_id,
                                            self.status_id,
                                            self.comment)
-        if self.trace_back != '':
-            self.backend.add_comment(
-                self.test_execution_id, self.trace_back)
-            self.trace_back = ''
-            if self.expected_failure_comment != '':
-                self.backend.add_comment(
-                    self.test_execution_id, self.expected_failure_comment)
-                self.expected_failure_comment = ''
-        elif self.skip_reason != '':
-            self.backend.add_comment(
-                self.test_execution_id, self.skip_reason)
-            self.skip_reason = ''
-        elif self.unexpected_success_comment != '':
-            self.backend.add_comment(
-                self.test_execution_id, self.unexpected_success_comment)
-            self.unexpected_success_comment = ''
+        self.comment = ''
 
     def stopTestRun(self):
         self.backend.finish_test_run()
