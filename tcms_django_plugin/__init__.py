@@ -4,7 +4,7 @@
 
 
 from django.test.runner import DiscoverRunner
-from .result import TestResult, DebugSQLTestResult, PDBDebugResult
+from .result import TestResult, DebugSQLTestResult
 
 
 class TestRunner(DiscoverRunner):
@@ -12,8 +12,5 @@ class TestRunner(DiscoverRunner):
     def get_resultclass(self):
         if self.debug_sql:
             return DebugSQLTestResult
-
-        if self.pdb:
-            return PDBDebugResult
 
         return TestResult

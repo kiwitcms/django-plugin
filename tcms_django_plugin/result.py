@@ -4,11 +4,6 @@ import logging
 from unittest import TextTestResult
 from tcms_api.plugin_helpers import Backend
 
-try:
-    import ipdb as pdb
-except ImportError:
-    import pdb
-
 
 class TestResult(TextTestResult):
     # pylint: disable=too-many-instance-attributes
@@ -167,19 +162,3 @@ class DebugSQLTestResult(TestResult):
             self.stream.writeln(err)
             self.stream.writeln(self.separator2)
             self.stream.writeln(sql_debug)
-
-
-class PDBDebugResult(TestResult):
-    @staticmethod
-    def debug(error):
-        _, exc_value, traceback = error
-        print("\nOpening PDB: %r" % exc_value)
-        pdb.post_mortem(traceback)
-
-    def addError(self, test, err):
-        super().addError(test, err)
-        self.debug(err)
-
-    def addFailure(self, test, err):
-        super().addFailure(test, err)
-        self.debug(err)
