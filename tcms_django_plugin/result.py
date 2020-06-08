@@ -7,10 +7,11 @@ from tcms_api.plugin_helpers import Backend
 
 class TestResult(TextTestResult):
     # pylint: disable=too-many-instance-attributes
+    backend = Backend(prefix='[DJANGO ] ')
+
     def __init__(self, stream=None, descriptions=None, verbosity=2, **kwargs):
         super().__init__(stream=stream, descriptions=descriptions,
                          verbosity=verbosity, **kwargs)
-        self.backend = Backend(prefix='[DJANGO ] ')
         self.test_case_id = 0
         self.comment = '''
         Result recorded via Kiwi TCMS Django test runner reporting plugin
@@ -67,6 +68,7 @@ class TestResult(TextTestResult):
 
     def addUnexpectedSuccess(self, test):
         super().addUnexpectedSuccess(test)
+        self.status_id = self.backend.get_status_id('FAILED')
         self.unexpected_success_comment = 'Test unexpectedly passed.'
 
     def addSubTest(self, test, subtest, err):

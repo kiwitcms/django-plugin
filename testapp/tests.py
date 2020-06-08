@@ -8,6 +8,7 @@ class TestAppContactPageTest(SimpleTestCase):
         url = reverse('contact')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        raise Exception
 
 
 class TestAppAboutPageTest(SimpleTestCase):

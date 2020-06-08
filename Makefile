@@ -14,3 +14,7 @@ pylint:
 check-build:
 	./tests/check-build.sh
 
+.PHONY: test
+test:
+	PYTHONPATH=. DJANGO_SETTINGS_MODULE="testsite.settings" python tests/test_result.py
+
