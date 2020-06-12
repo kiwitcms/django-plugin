@@ -11,9 +11,11 @@ class TestAppContactPageTest(SimpleTestCase):
 
 
 class TestAppAboutPageTest(SimpleTestCase):
+    # pylint: disable=unreachable
     def test_about_page(self):
         url = reverse('about')
         response = self.client.get(url)
+        raise Exception
         self.assertEqual(response.status_code, 200)
 
 

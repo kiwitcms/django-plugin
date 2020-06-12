@@ -14,3 +14,6 @@ pylint:
 check-build:
 	./tests/check-build.sh
 
+.PHONY: integration_test
+integration_test:
+	./tests/test-run.sh
