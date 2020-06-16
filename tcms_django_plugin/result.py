@@ -1,6 +1,3 @@
-from io import StringIO
-import logging
-
 from unittest import TextTestResult
 from tcms_api.plugin_helpers import Backend
 
@@ -89,45 +86,3 @@ class TestResult(TextTestResult):
     def stopTestRun(self):
         super().stopTestRun()
         self.backend.finish_test_run()
-
-
-class DebugSQLTestResult(TestResult):
-    def __init__(self, stream, descriptions, verbosity, **kwargs):
-        self.logger = logging.getLogger('django.db.backends')
-        self.logger.setLevel(logging.DEBUG)
-        self.debug_sql_stream = StringIO()
-        self.handler = logging.StreamHandler(self.debug_sql_stream)
-        super().__init__(stream=stream, descriptions=descriptions,
-                         verbosity=2, **kwargs)
-
-    def startTest(self, test):
-        self.logger.addHandler(self.handler)
-        super().startTest(test)
-
-    def stopTest(self, test):
-        super().stopTest(test)
-        self.logger.removeHandler(self.handler)
-        if self.showAll:
-            self.debug_sql_stream.seek(0)
-            self.stream.write(self.debug_sql_stream.read())
-            self.stream.writeln(self.separator2)
-
-    def addError(self, test, err):
-        super().addError(test, err)
-        self.debug_sql_stream.seek(0)
-        self.errors[-1] = self.errors[-1] + (self.debug_sql_stream.read(),)
-
-    def addFailure(self, test, err):
-        super().addFailure(test, err)
-        self.debug_sql_stream.seek(0)
-        self.failures[-1] = self.failures[-1] + (self.debug_sql_stream.read(),)
-
-    def printErrorList(self, flavour, errors):
-        for test, err, sql_debug in errors:
-            self.stream.writeln(self.separator1)
-            self.stream.writeln("%s: %s" %
-                                (flavour, self.getDescription(test)))
-            self.stream.writeln(self.separator2)
-            self.stream.writeln(err)
-            self.stream.writeln(self.separator2)
-            self.stream.writeln(sql_debug)

@@ -4,13 +4,10 @@
 
 
 from django.test.runner import DiscoverRunner
-from .result import TestResult, DebugSQLTestResult
+from .result import TestResult
 
 
 class TestRunner(DiscoverRunner):
 
     def get_resultclass(self):
-        if self.debug_sql:
-            return DebugSQLTestResult
-
         return TestResult
