@@ -92,13 +92,14 @@ class TestResult(TextTestResult):
 
 
 class DebugSQLTestResult(TestResult):
-    def __init__(self, stream, descriptions, verbosity, **kwargs):
+    def __init__(self, stream=None, descriptions=None, verbosity=2, **kwargs):
+        super().__init__(stream=stream, descriptions=descriptions,
+                         verbosity=verbosity, **kwargs)
+        self.backend.prefix = '[DJANGO --debug-sql]'
         self.logger = logging.getLogger('django.db.backends')
         self.logger.setLevel(logging.DEBUG)
         self.debug_sql_stream = StringIO()
         self.handler = logging.StreamHandler(self.debug_sql_stream)
-        super().__init__(stream=stream, descriptions=descriptions,
-                         verbosity=2, **kwargs)
 
     def startTest(self, test):
         self.logger.addHandler(self.handler)
@@ -116,11 +117,22 @@ class DebugSQLTestResult(TestResult):
         super().addError(test, err)
         self.debug_sql_stream.seek(0)
         self.errors[-1] = self.errors[-1] + (self.debug_sql_stream.read(),)
+        self.backend.add_comment(self.test_execution_id, self.errors[-1][2])
 
     def addFailure(self, test, err):
         super().addFailure(test, err)
         self.debug_sql_stream.seek(0)
         self.failures[-1] = self.failures[-1] + (self.debug_sql_stream.read(),)
+        self.backend.add_comment(self.test_execution_id, self.failures[-1][2])
+
+    def addSubTest(self, test, subtest, err):
+        super().addSubTest(test, subtest, err)
+        if err is not None:
+            self.debug_sql_stream.seek(0)
+            errors = self.failures if issubclass(
+                err[0], test.failureException) else self.errors
+            errors[-1] = errors[-1] + (self.debug_sql_stream.read(),)
+            self.backend.add_comment(self.test_execution_id, errors[-1][2])
 
     def printErrorList(self, flavour, errors):
         for test, err, sql_debug in errors:
