@@ -32,46 +32,82 @@ class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
 
     def addSuccess(self, test):
         super().addSuccess(test)
-        self.status_id = self.backend.get_status_id('PASSED')
+        try:
+            self.status_id = self.backend.get_status_id('PASSED')
+        except IndexError:
+            self.status_id = self.backend.rpc.TestExecutionStatus.filter(
+                {'weight__gt': 0})[-1]['id']
 
     def addError(self, test, err):
         super().addError(test, err)
-        self.status_id = self.backend.get_status_id('FAILED')
+        try:
+            self.status_id = self.backend.get_status_id('ERROR')
+        except IndexError:
+            self.status_id = self.backend.rpc.TestExecutionStatus.filter(
+                {'weight__lt': 0})[-1]['id']
         self.comment = self.errors[-1][1]
 
     def addFailure(self, test, err):
         super().addFailure(test, err)
-        self.status_id = self.backend.get_status_id('FAILED')
+        try:
+            self.status_id = self.backend.get_status_id('FAILED')
+        except IndexError:
+            self.status_id = self.backend.rpc.TestExecutionStatus.filter(
+                {'weight__lt': 0})[-1]['id']
         self.comment = self.failures[-1][1]
 
     def addSkip(self, test, reason):
         super().addSkip(test, reason)
-        self.status_id = self.backend.get_status_id('WAIVED')
+        try:
+            self.status_id = self.backend.get_status_id('WAIVED')
+        except IndexError:
+            self.status_id = self.backend.rpc.TestExecutionStatus.filter(
+                {'weight__gt': 0})[0]['id']
         self.comment = reason
 
     def addExpectedFailure(self, test, err):
         super().addExpectedFailure(test, err)
-        self.status_id = self.backend.get_status_id('FAILED')
-        self.comment = self.expectedFailures[-1][1]
+        try:
+            self.status_id = self.backend.get_status_id('PASSED')
+        except IndexError:
+            self.status_id = self.backend.rpc.TestExecutionStatus.filter(
+                {'weight__gt': 0})[-1]['id']
+        self.comment = 'Expected failure:\n\n{0}'.format(
+            self.expectedFailures[-1][1])
 
     def addUnexpectedSuccess(self, test):
         super().addUnexpectedSuccess(test)
+        try:
+            self.status_id = self.backend.get_status_id('FAILED')
+        except IndexError:
+            self.status_id = self.backend.rpc.TestExecutionStatus.filter(
+                {'weight__lt': 0})[-1]['id']
         self.comment = 'Test unexpectedly passed.'
 
     def addSubTest(self, test, subtest, err):
         super().addSubTest(test, subtest, err)
-        if err is not None:
+        if err:
             self.failed_subtest = True
             if issubclass(err[0], test.failureException):
+                try:
+                    status_id = self.backend.get_status_id('FAILED')
+                except IndexError:
+                    status_id = self.backend.rpc.TestExecutionStatus.filter(
+                        {'weight__lt': 0})[-1]['id']
                 self.backend.update_test_execution(
                     self.test_execution_id,
-                    self.backend.get_status_id('FAILED'),
+                    status_id,
                     "Subtest failure:{0}".format(
                         self._exc_info_to_string(err, test)))
             else:
+                try:
+                    status_id = self.backend.get_status_id('ERROR')
+                except IndexError:
+                    status_id = self.backend.rpc.TestExecutionStatus.filter(
+                        {'weight__lt': 0})[-1]['id']
                 self.backend.update_test_execution(
                     self.test_execution_id,
-                    self.backend.get_status_id('FAILED'),
+                    status_id,
                     "Subtest error:{0}".format(
                         self._exc_info_to_string(err, test)))
 
