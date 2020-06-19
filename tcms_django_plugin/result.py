@@ -1,15 +1,15 @@
-from io import StringIO
-import logging
-
 from unittest import TextTestResult
+from django.test.runner import DebugSQLTextTestResult as DjangoDebugSQLResult
+
 from tcms_api.plugin_helpers import Backend
 
 
-class TestResult(TextTestResult):
-    def __init__(self, stream=None, descriptions=None, verbosity=2, **kwargs):
-        super().__init__(stream=stream, descriptions=descriptions,
-                         verbosity=verbosity, **kwargs)
-        self.backend = Backend(prefix='[DJANGO ] ')
+class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
+    prefix = ''
+
+    def __init__(self, stream, descriptions, verbosity, **kwargs):
+        super().__init__(stream, descriptions, verbosity, **kwargs)
+        self.backend = Backend(prefix=self.prefix)
         self.comment = ''
         self.status_id = 0
         self.test_execution_id = 0
@@ -91,55 +91,28 @@ class TestResult(TextTestResult):
         self.backend.finish_test_run()
 
 
-class DebugSQLTestResult(TestResult):
-    def __init__(self, stream=None, descriptions=None, verbosity=2, **kwargs):
-        super().__init__(stream=stream, descriptions=descriptions,
-                         verbosity=verbosity, **kwargs)
-        self.backend.prefix = '[DJANGO --debug-sql]'
-        self.logger = logging.getLogger('django.db.backends')
-        self.logger.setLevel(logging.DEBUG)
-        self.debug_sql_stream = StringIO()
-        self.handler = logging.StreamHandler(self.debug_sql_stream)
+class TestResult(KiwiTCMSIntegrationMixin, TextTestResult):
+    prefix = '[DJANGO ] '
 
-    def startTest(self, test):
-        self.logger.addHandler(self.handler)
-        super().startTest(test)
 
-    def stopTest(self, test):
-        super().stopTest(test)
-        self.logger.removeHandler(self.handler)
-        if self.showAll:
-            self.debug_sql_stream.seek(0)
-            self.stream.write(self.debug_sql_stream.read())
-            self.stream.writeln(self.separator2)
+class DebugSQLTestResult(KiwiTCMSIntegrationMixin, DjangoDebugSQLResult):
+    prefix = '[DJANGO --debug-sql] '
 
     def addError(self, test, err):
         super().addError(test, err)
         self.debug_sql_stream.seek(0)
-        self.errors[-1] = self.errors[-1] + (self.debug_sql_stream.read(),)
-        self.backend.add_comment(self.test_execution_id, self.errors[-1][2])
+        self.backend.add_comment(self.test_execution_id,
+                                 self.debug_sql_stream.read())
 
     def addFailure(self, test, err):
         super().addFailure(test, err)
         self.debug_sql_stream.seek(0)
-        self.failures[-1] = self.failures[-1] + (self.debug_sql_stream.read(),)
-        self.backend.add_comment(self.test_execution_id, self.failures[-1][2])
+        self.backend.add_comment(self.test_execution_id,
+                                 self.debug_sql_stream.read())
 
     def addSubTest(self, test, subtest, err):
         super().addSubTest(test, subtest, err)
-        if err is not None:
+        if err:
             self.debug_sql_stream.seek(0)
-            errors = self.failures if issubclass(
-                err[0], test.failureException) else self.errors
-            errors[-1] = errors[-1] + (self.debug_sql_stream.read(),)
-            self.backend.add_comment(self.test_execution_id, errors[-1][2])
-
-    def printErrorList(self, flavour, errors):
-        for test, err, sql_debug in errors:
-            self.stream.writeln(self.separator1)
-            self.stream.writeln("%s: %s" %
-                                (flavour, self.getDescription(test)))
-            self.stream.writeln(self.separator2)
-            self.stream.writeln(err)
-            self.stream.writeln(self.separator2)
-            self.stream.writeln(sql_debug)
+            self.backend.add_comment(self.test_execution_id,
+                                     self.debug_sql_stream.read())
