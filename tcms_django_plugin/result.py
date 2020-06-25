@@ -32,56 +32,32 @@ class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
 
     def addSuccess(self, test):
         super().addSuccess(test)
-        try:
-            self.status_id = self.backend.get_status_id('PASSED')
-        except IndexError:
-            self.status_id = self.backend.rpc.TestExecutionStatus.filter(
-                {'weight__gt': 0})[-1]['id']
+        self.status_id = self.backend.get_status_id('PASSED')
 
     def addError(self, test, err):
         super().addError(test, err)
-        try:
-            self.status_id = self.backend.get_status_id('ERROR')
-        except IndexError:
-            self.status_id = self.backend.rpc.TestExecutionStatus.filter(
-                {'weight__lt': 0})[-1]['id']
+        self.status_id = self.backend.get_status_id('ERROR')
         self.comment = self.errors[-1][1]
 
     def addFailure(self, test, err):
         super().addFailure(test, err)
-        try:
-            self.status_id = self.backend.get_status_id('FAILED')
-        except IndexError:
-            self.status_id = self.backend.rpc.TestExecutionStatus.filter(
-                {'weight__lt': 0})[-1]['id']
+        self.status_id = self.backend.get_status_id('FAILED')
         self.comment = self.failures[-1][1]
 
     def addSkip(self, test, reason):
         super().addSkip(test, reason)
-        try:
-            self.status_id = self.backend.get_status_id('WAIVED')
-        except IndexError:
-            self.status_id = self.backend.rpc.TestExecutionStatus.filter(
-                {'weight__gt': 0})[0]['id']
+        self.status_id = self.backend.get_status_id('WAIVED')
         self.comment = reason
 
     def addExpectedFailure(self, test, err):
         super().addExpectedFailure(test, err)
-        try:
-            self.status_id = self.backend.get_status_id('PASSED')
-        except IndexError:
-            self.status_id = self.backend.rpc.TestExecutionStatus.filter(
-                {'weight__gt': 0})[-1]['id']
+        self.status_id = self.backend.get_status_id('PASSED')
         self.comment = 'Expected failure:\n\n{0}'.format(
             self.expectedFailures[-1][1])
 
     def addUnexpectedSuccess(self, test):
         super().addUnexpectedSuccess(test)
-        try:
-            self.status_id = self.backend.get_status_id('FAILED')
-        except IndexError:
-            self.status_id = self.backend.rpc.TestExecutionStatus.filter(
-                {'weight__lt': 0})[-1]['id']
+        self.status_id = self.backend.get_status_id('FAILED')
         self.comment = 'Test unexpectedly passed.'
 
     def addSubTest(self, test, subtest, err):
@@ -89,22 +65,14 @@ class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
         if err:
             self.failed_subtest = True
             if issubclass(err[0], test.failureException):
-                try:
-                    status_id = self.backend.get_status_id('FAILED')
-                except IndexError:
-                    status_id = self.backend.rpc.TestExecutionStatus.filter(
-                        {'weight__lt': 0})[-1]['id']
+                status_id = self.backend.get_status_id('FAILED')
                 self.backend.update_test_execution(
                     self.test_execution_id,
                     status_id,
                     "Subtest failure:{0}".format(
                         self._exc_info_to_string(err, test)))
             else:
-                try:
-                    status_id = self.backend.get_status_id('ERROR')
-                except IndexError:
-                    status_id = self.backend.rpc.TestExecutionStatus.filter(
-                        {'weight__lt': 0})[-1]['id']
+                status_id = self.backend.get_status_id('ERROR')
                 self.backend.update_test_execution(
                     self.test_execution_id,
                     status_id,
