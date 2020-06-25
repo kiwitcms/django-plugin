@@ -44,3 +44,12 @@ In ``settings.py`` add the following::
 
 When you run ``./manage.py test`` Django looks at the ``TEST_RUNNER`` setting
 to determine what to do.
+
+
+Changelog
+---------
+
+v1.1.1 (25 June 2020)
+~~~~~~~~~~~~~~~~~~~~~
+
+- Initial release, thanks to Bryan Mutai
