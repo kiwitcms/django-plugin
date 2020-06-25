@@ -1,6 +1,15 @@
 Django Test Runner plugin for Kiwi TCMS
 =======================================
 
+.. image:: https://tidelift.com/badges/package/pypi/kiwitcms-django-plugin
+    :target: https://tidelift.com/subscription/pkg/kiwitcms-django-plugin?utm_source=pypi-kiwitcms-django-plugin&utm_medium=github&utm_campaign=readme
+    :alt: Tidelift
+
+.. image:: https://img.shields.io/twitter/follow/KiwiTCMS.svg
+    :target: https://twitter.com/KiwiTCMS
+    :alt: Kiwi TCMS on Twitter
+
+
 This package provides a Django test runner that reports the test results to
 `Kiwi TCMS <https://kiwitcms.org>`_.
 
