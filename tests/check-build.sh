@@ -77,7 +77,7 @@ rm -rf .venv/
 echo "..... Trying to install the new wheel inside a virtualenv"
 virtualenv -p $(which python3) .venv/test-wheel
 source .venv/test-wheel/bin/activate
-pip install --upgrade setuptools pip gssapi
+pip install --upgrade setuptools pip
 pip install --only-binary :all: -f dist/ kiwitcms-django-plugin
 pip freeze | grep kiwitcms-django-plugin
 deactivate
