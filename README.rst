@@ -49,6 +49,12 @@ to determine what to do.
 Changelog
 ---------
 
+v1.1.3 (28 October 2020)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Update to tcms-api v8.6.0
+
+
 v1.1.2 (25 June 2020)
 ~~~~~~~~~~~~~~~~~~~~~
 
