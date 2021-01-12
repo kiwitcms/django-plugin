@@ -1,2 +1,2 @@
 Django
-tcms-api==8.6.0
+tcms-api==9.0
