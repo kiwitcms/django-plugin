@@ -8,7 +8,7 @@ flake8:
 
 .PHONY: pylint
 pylint:
-	DJANGO_SETTINGS_MODULE=$(DJANGO_SETTINGS_MODULE) pylint --load-plugins=pylint_django -d missing-docstring tcms_django_plugin/ tests/ testapp/ testsite/ manage.py
+	DJANGO_SETTINGS_MODULE=testsite.settings pylint --load-plugins=pylint_django -d missing-docstring tcms_django_plugin/ tests/ testapp/ testsite/ manage.py
 
 .PHONY: check-build
 check-build:
