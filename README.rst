@@ -49,6 +49,14 @@ to determine what to do.
 Changelog
 ---------
 
+v9.0 (13 Jan 2021)
+~~~~~~~~~~~~~~~~~~
+
+- Compatible with Kiwi TCMS v9.0
+- Update to tcms-api v9.0
+- Specify valid DJANGO_SETTINGS_MODULE for running pylint-django in CI
+
+
 v1.1.3 (28 October 2020)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
