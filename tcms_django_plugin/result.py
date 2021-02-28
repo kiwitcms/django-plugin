@@ -96,7 +96,7 @@ class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
 
 
 class TestResult(KiwiTCMSIntegrationMixin, TextTestResult):
-    prefix = '[DJANGO ] '
+    prefix = '[DJANGO] '
 
 
 class DebugSQLTestResult(KiwiTCMSIntegrationMixin, DjangoDebugSQLResult):
