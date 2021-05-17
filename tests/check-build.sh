@@ -66,7 +66,7 @@ done
 set -e
 
 echo "..... Trying to install the new tarball inside a virtualenv"
-virtualenv -p $(which python3) .venv/test-tarball
+$(which python3) -m venv .venv/test-tarball
 source .venv/test-tarball/bin/activate
 pip install --upgrade setuptools pip
 pip install --no-binary :all: -f dist/ kiwitcms-django-plugin
@@ -75,7 +75,7 @@ deactivate
 rm -rf .venv/
 
 echo "..... Trying to install the new wheel inside a virtualenv"
-virtualenv -p $(which python3) .venv/test-wheel
+$(which python3) -m venv .venv/test-wheel
 source .venv/test-wheel/bin/activate
 pip install --upgrade setuptools pip
 pip install --only-binary :all: -f dist/ kiwitcms-django-plugin
