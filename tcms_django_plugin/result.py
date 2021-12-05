@@ -12,7 +12,7 @@ class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
         self.backend = Backend(prefix=self.prefix)
         self.comment = ''
         self.status_id = 0
-        self.test_execution_id = 0
+        self.test_executions = []
         self.failed_subtest = False
 
     def startTestRun(self):
@@ -26,7 +26,7 @@ class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
         self.backend.add_test_case_to_plan(
             test_case['id'],
             self.backend.plan_id)
-        self.test_execution_id = self.backend.add_test_case_to_run(
+        self.test_executions = self.backend.add_test_case_to_run(
             test_case['id'],
             self.backend.run_id)
 
@@ -68,16 +68,18 @@ class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
 
             if issubclass(err[0], test.failureException):
                 status_id = self.backend.get_status_id('FAILED')
-                self.backend.update_test_execution(
-                    self.test_execution_id,
-                    status_id,
-                    f"Subtest failure:{exception_info}")
+                for execution in self.test_executions:
+                    self.backend.update_test_execution(
+                        execution["id"],
+                        status_id,
+                        f"Subtest failure:{exception_info}")
             else:
                 status_id = self.backend.get_status_id('ERROR')
-                self.backend.update_test_execution(
-                    self.test_execution_id,
-                    status_id,
-                    f"Subtest error:{exception_info}")
+                for execution in self.test_executions:
+                    self.backend.update_test_execution(
+                        execution["id"],
+                        status_id,
+                        f"Subtest error:{exception_info}")
 
     def stopTest(self, test):
         super().stopTest(test)
@@ -85,9 +87,10 @@ class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
             self.failed_subtest = False
             return
 
-        self.backend.update_test_execution(self.test_execution_id,
-                                           self.status_id,
-                                           self.comment)
+        for execution in self.test_executions:
+            self.backend.update_test_execution(execution["id"],
+                                               self.status_id,
+                                               self.comment)
         self.comment = ''
 
     def stopTestRun(self):
@@ -105,18 +108,21 @@ class DebugSQLTestResult(KiwiTCMSIntegrationMixin, DjangoDebugSQLResult):
     def addError(self, test, err):
         super().addError(test, err)
         self.debug_sql_stream.seek(0)
-        self.backend.add_comment(self.test_execution_id,
-                                 self.debug_sql_stream.read())
+        for execution in self.test_executions:
+            self.backend.add_comment(execution["id"],
+                                     self.debug_sql_stream.read())
 
     def addFailure(self, test, err):
         super().addFailure(test, err)
         self.debug_sql_stream.seek(0)
-        self.backend.add_comment(self.test_execution_id,
-                                 self.debug_sql_stream.read())
+        for execution in self.test_executions:
+            self.backend.add_comment(execution["id"],
+                                     self.debug_sql_stream.read())
 
     def addSubTest(self, test, subtest, err):
         super().addSubTest(test, subtest, err)
         if err:
             self.debug_sql_stream.seek(0)
-            self.backend.add_comment(self.test_execution_id,
-                                     self.debug_sql_stream.read())
+            for execution in self.test_executions:
+                self.backend.add_comment(execution["id"],
+                                         self.debug_sql_stream.read())
