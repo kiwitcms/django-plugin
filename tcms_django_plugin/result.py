@@ -99,11 +99,11 @@ class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
 
 
 class TestResult(KiwiTCMSIntegrationMixin, TextTestResult):
-    prefix = '[DJANGO] '
+    prefix = '[DJANGO]'
 
 
 class DebugSQLTestResult(KiwiTCMSIntegrationMixin, DjangoDebugSQLResult):
-    prefix = '[DJANGO --debug-sql] '
+    prefix = '[DJANGO --debug-sql]'
 
     def addError(self, test, err):
         super().addError(test, err)
