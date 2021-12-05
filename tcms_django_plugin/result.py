@@ -52,8 +52,8 @@ class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
     def addExpectedFailure(self, test, err):
         super().addExpectedFailure(test, err)
         self.status_id = self.backend.get_status_id('PASSED')
-        self.comment = 'Expected failure:\n\n{0}'.format(
-            self.expectedFailures[-1][1])
+        expected_failure = self.expectedFailures[-1][1]
+        self.comment = f'Expected failure:\n\n{expected_failure}'
 
     def addUnexpectedSuccess(self, test):
         super().addUnexpectedSuccess(test)
@@ -64,20 +64,20 @@ class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
         super().addSubTest(test, subtest, err)
         if err:
             self.failed_subtest = True
+            exception_info = self._exc_info_to_string(err, test)
+
             if issubclass(err[0], test.failureException):
                 status_id = self.backend.get_status_id('FAILED')
                 self.backend.update_test_execution(
                     self.test_execution_id,
                     status_id,
-                    "Subtest failure:{0}".format(
-                        self._exc_info_to_string(err, test)))
+                    f"Subtest failure:{exception_info}")
             else:
                 status_id = self.backend.get_status_id('ERROR')
                 self.backend.update_test_execution(
                     self.test_execution_id,
                     status_id,
-                    "Subtest error:{0}".format(
-                        self._exc_info_to_string(err, test)))
+                    f"Subtest error:{exception_info}")
 
     def stopTest(self, test):
         super().stopTest(test)
