@@ -49,6 +49,15 @@ to determine what to do.
 Changelog
 ---------
 
+v11.0 (05 Dec 2021)
+~~~~~~~~~~~~~~~~~~~
+
+- Forward compatible with upcoming Kiwi TCMS v11.0
+- Update tcms-api from 10.0 to 11.0
+- Use f-strings
+- Updates in testing environments
+
+
 v10.0 (02 Mar 2021)
 ~~~~~~~~~~~~~~~~~~~
 
