@@ -18,4 +18,4 @@ def boolean(request, user_boolean):
         choice = bool(user_boolean)
     else:
         choice = 'invald'
-    return HttpResponse("{0}".format(choice))
+    return HttpResponse(f"{choice}")
