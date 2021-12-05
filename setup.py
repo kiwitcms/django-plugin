@@ -7,7 +7,7 @@ with open("README.rst") as readme:
 REQUIREMENTS = open('requirements.txt').readlines()
 
 setup(name='kiwitcms-django-plugin',
-      version='11.0',
+      version='11.1',
       packages=['tcms_django_plugin'],
       description='Django test runner plugin for Kiwi TCMS',
       long_description=LONG_DESCRIPTION,
