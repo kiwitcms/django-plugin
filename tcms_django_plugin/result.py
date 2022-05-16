@@ -1,7 +1,13 @@
 from unittest import TextTestResult
 from django.test.runner import DebugSQLTextTestResult as DjangoDebugSQLResult
+from tcms_api import plugin_helpers
 
-from tcms_api.plugin_helpers import Backend
+from .version import __version__
+
+
+class Backend(plugin_helpers.Backend):
+    name = "kiwitcms-django-plugin"
+    version = __version__
 
 
 class KiwiTCMSIntegrationMixin:  # pylint: disable=invalid-name
