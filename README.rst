@@ -49,6 +49,13 @@ to determine what to do.
 Changelog
 ---------
 
+v11.2 (16 May 2022)
+~~~~~~~~~~~~~~~~~~~
+
+- Update tcms-api from 11.0 to 11.2
+- Annotate plugin with name & version information
+
+
 v11.1 (05 Dec 2021)
 ~~~~~~~~~~~~~~~~~~~
 
