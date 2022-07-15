@@ -1,2 +1,2 @@
 Django
-tcms-api==11.3
+tcms-api>=11.4
