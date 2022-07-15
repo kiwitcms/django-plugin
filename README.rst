@@ -49,6 +49,14 @@ to determine what to do.
 Changelog
 ---------
 
+
+v11.3 (15 Jul 2022)
+~~~~~~~~~~~~~~~~~~~
+
+- Update tcms-api from 11.2 to 11.4
+- Small linter updates
+
+
 v11.2 (16 May 2022)
 ~~~~~~~~~~~~~~~~~~~
 
