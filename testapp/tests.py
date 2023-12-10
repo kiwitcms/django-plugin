@@ -19,7 +19,7 @@ class TestWhichReportsVariousStatuses(TestCase):
         PageInfo.objects.filter(page_title="error").count()
         url = reverse('about')
         response = self.client.get(url)
-        raise Exception
+        raise RuntimeError
         self.assertEqual(response.status_code, 200)
 
     @skip("demonstrating skipping")
