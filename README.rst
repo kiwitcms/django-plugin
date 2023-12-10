@@ -49,6 +49,15 @@ to determine what to do.
 Changelog
 ---------
 
+v12.7 (10 Dec 2023)
+~~~~~~~~~~~~~~~~~~~
+
+- Update tcms-api from 11.4 to 12.7
+- Build & test with Python 3.11
+- Refactor issues found by newer pylint
+- Refactor issues found by CodeQL
+- Reformat source code with Black
+
 
 v11.3 (15 Jul 2022)
 ~~~~~~~~~~~~~~~~~~~
