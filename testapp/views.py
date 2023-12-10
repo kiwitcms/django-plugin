@@ -17,5 +17,5 @@ def boolean(request, user_boolean):
     if user_boolean in [0, 1]:
         choice = bool(user_boolean)
     else:
-        choice = 'invald'
+        choice = "invald"
     return HttpResponse(f"{choice}")

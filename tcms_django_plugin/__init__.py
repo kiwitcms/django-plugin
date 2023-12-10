@@ -8,7 +8,6 @@ from .result import TestResult, DebugSQLTestResult
 
 
 class TestRunner(DiscoverRunner):
-
     def get_resultclass(self):
         if self.debug_sql:
             return DebugSQLTestResult
