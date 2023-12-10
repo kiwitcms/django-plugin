@@ -14,13 +14,8 @@ class TestWhichReportsVariousStatuses(TestCase):
     def test_unexpected_success_will_report_failed(self):
         self.assertEqual(1, 1, "broken (not actually)")
 
-    # pylint: disable=unreachable
     def test_will_report_error(self):
-        PageInfo.objects.filter(page_title="error").count()
-        url = reverse("about")
-        response = self.client.get(url)
         raise RuntimeError
-        self.assertEqual(response.status_code, 200)
 
     @skip("demonstrating skipping")
     def test_will_report_waived(self):
