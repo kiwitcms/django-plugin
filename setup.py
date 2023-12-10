@@ -16,10 +16,11 @@ def get_version():
         )
 
 
-with open("README.rst", encoding="utf-8") as readme:
-    LONG_DESCRIPTION = readme.read()
+with open("README.rst", encoding="utf-8") as file:
+    LONG_DESCRIPTION = file.read()
 
-REQUIREMENTS = open("requirements.txt", encoding="utf-8").readlines()
+with open("requirements.txt", encoding="utf-8") as file:
+    REQUIREMENTS = file.readlines()
 
 setup(
     name="kiwitcms-django-plugin",
