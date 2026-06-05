@@ -52,3 +52,11 @@ jobs:
         # short commit number
         export TCMS_BUILD=$(echo $GITHUB_SHA | cut -c1-7)
         make ${{ matrix.make-command }}
+
+    - name: Upload logs
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: logs
+        path: '*.log'
+        if-no-files-found: warn
