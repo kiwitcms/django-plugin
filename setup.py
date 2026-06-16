@@ -35,7 +35,7 @@ setup(
     maintainer_email="info@kiwitcms.org",
     license="GPLv3",
     url="https://github.com/kiwitcms/django-plugin",
-    python_requires=">=3.6",
+    python_requires=">=3.12",
     install_requires=REQUIREMENTS,
     classifiers=[
         "Development Status :: 3 - Alpha",
