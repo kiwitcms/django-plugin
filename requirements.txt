@@ -1,2 +1,2 @@
-Django<6
+Django>=6
 tcms-api>=12.7
