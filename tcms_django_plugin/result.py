@@ -108,19 +108,19 @@ class DebugSQLTestResult(KiwiTCMSIntegrationMixin, DjangoDebugSQLResult):
 
     def addError(self, test, err):
         super().addError(test, err)
-        self.debug_sql_stream.seek(0)
+        sql_debug = self._read_logger_stream()
         for execution in self.test_executions:
-            self.backend.add_comment(execution["id"], self.debug_sql_stream.read())
+            self.backend.add_comment(execution["id"], sql_debug)
 
     def addFailure(self, test, err):
         super().addFailure(test, err)
-        self.debug_sql_stream.seek(0)
+        sql_debug = self._read_logger_stream()
         for execution in self.test_executions:
-            self.backend.add_comment(execution["id"], self.debug_sql_stream.read())
+            self.backend.add_comment(execution["id"], sql_debug)
 
     def addSubTest(self, test, subtest, err):
         super().addSubTest(test, subtest, err)
         if err:
-            self.debug_sql_stream.seek(0)
+            sql_debug = self._read_logger_stream()
             for execution in self.test_executions:
-                self.backend.add_comment(execution["id"], self.debug_sql_stream.read())
+                self.backend.add_comment(execution["id"], sql_debug)
