@@ -49,6 +49,16 @@ to determine what to do.
 Changelog
 ---------
 
+v16.1 (16 Jun 2026)
+~~~~~~~~~~~~~~~~~~~
+
+- Minimum supported Django version is now 6, because
+  ``DebugSQLTestResult`` now relies on Django's internal
+  ``_read_logger_stream()`` API (the ``debug_sql_stream`` attribute was
+  removed in Django 6)
+- Require Python >= 3.12
+
+
 v12.7 (10 Dec 2023)
 ~~~~~~~~~~~~~~~~~~~
 
