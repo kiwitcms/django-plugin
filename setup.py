@@ -34,7 +34,7 @@ setup(
     maintainer="Kiwi TCMS",
     maintainer_email="info@kiwitcms.org",
     url="https://github.com/kiwitcms/django-plugin",
-    python_requires=">=3.12",
+    python_requires=">=3.14",
     install_requires=REQUIREMENTS,
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -42,7 +42,7 @@ setup(
         "Intended Audience :: System Administrators",
         "Operating System :: POSIX",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.14",
         "Topic :: Software Development",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Quality Assurance",
