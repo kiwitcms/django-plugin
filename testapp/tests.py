@@ -12,6 +12,7 @@ class TestWhichReportsVariousStatuses(TestCase):
 
     @expectedFailure
     def test_unexpected_success_will_report_failed(self):
+        # pylint: disable=redundant-unittest-assert
         self.assertEqual(1, 1, "broken (not actually)")
 
     def test_will_report_error(self):
@@ -29,6 +30,7 @@ class TestWhichReportsVariousStatuses(TestCase):
 
     @expectedFailure
     def test_expected_failure_will_report_passed(self):
+        # pylint: disable=redundant-unittest-assert
         self.assertEqual(1, 0, "broken")
 
     def test_with_subtests_will_report_failed(self):
@@ -46,4 +48,5 @@ class TestWhichReportsVariousStatuses(TestCase):
     def test_with_subtests_will_report_passed(self):
         with self.subTest("Should pass"):
             PageInfo.objects.filter(page_title="pass").count()
+            # pylint: disable=redundant-unittest-assert
             self.assertEqual(1, 1)
